@@ -1,78 +1,72 @@
-// This program depends on variable (of window), object.name, 
-// and html id being the same thing, in order to be queried.
-// Problem?
+
 
 function Key(keyName) {
-	// REPLACE L8R with SVG	
-	// this.object = $('<object>');
-	// //===CANT PUT THIS HERE~~HASNT BEEN NAMED YET===
-	//this.svg = document.querySelector('#' + this.name + "-svg");
-	// this.object.appendTo($('body'));
-	// this.object.attr('data', currentSVG);
-	// this.object.attr('type', 'image/svg+xml');
-	// this.graphic = graph.svg;
-	// $(this.object).click(this.pressed);
-	// this.svg = Snap(svg)
-	// var pressed = function() {
-	// 	this.$div.css("background-color", "blue");
-	// }
-	// this.$div.click(pressed);
-	// this.name = keyName;
-	// console.log(graph);
-	// this.graphic = graph.svg;
 	this.name = keyName;
-	this.svg = currentSVG.querySelector("#" + keyName + "-svg");
-	//var pressedBound = pressed.bind(this);
-	var bound = this.pressed.bind(this);
-	$(this.svg).click(bound);
-	//RESTORE THIS!!!!!!!!!!!!
+	this.svg = currentSVG.querySelector('.' + keyName + '-svg');
+	$(this.svg).attr('class', keyName + '-svg key');
+	var pressedBound = this.pressed.bind(this);
+	$(this.svg).click(pressedBound);
+}
 
-	// $(window["key" + i].object).attr('id', "key" + i);
-	// $(window["key" + i].object).attr('class', "key");
-	// window["key" + i].object.svg = Snap("key" + i);
-
-
+var fade = function(x) {
+	$(x).fadeTo(799, 0.9, function() {
+		$(this).fadeTo(799, 0);
+	});
 }
 
 Key.prototype.pressed = function() {   // but why is "this" not the thing that calls "pressed"?
-	//thisKey = (window[$(this).name]);   // gets jsObject connected to div
-	$(this.svg).fadeTo(799, 0.1, function() {
-		$(this).fadeTo(799, 1);
-	});
+	fade($(this.svg));
 	console.log(this.name);
 	this.currScore.playerNotes.push(this.name); // score is a property of key... and vice versa
-	// if (thisKey.currScore.playerNotes.length === 1) { 
-	// 	(function(passThis) { // sets timer for player 
-	// 		window.measureId = window.setTimeout(passThis.currScore.measure
-	// 			, 700 * passThis.currScore.notes.length);
-	// 	})(thisKey);
-	// }
+
 	if (this.currScore.playerNotes.length === this.currScore.notes.length) {
 		clearTimeout(measureId);
-		this.currScore.measure();
 	}
+	this.currScore.measure(true);
 }
 
-function PlayButton() {
-	// this.div = $('<div>');
-	this.svg = currentSVG.querySelector("#playbutton-svg");
-	//===CANT PUT THIS HERE~~HASNT BEEN NAMED YET===
-	// $(this.div).attr('id', this.name);
-	// this.div.attr("class", "play-button");
-	// this.div.append($('<div>').html('PLAY').attr('class', 'play-text'));
-	// this.div.appendTo($('body'));
+var fontSmall = function(x) {
+	x.style.fontSize = "20px";
+}
+
+var fontLarge = function(x) {
+	x.style.fontSize = "34px";
+}
+
+function PlayButton() { // fix window.playtext ?
+	this.textDiv = document.createElement('div');
+	this.text = document.createElement('p');
+	document.body.appendChild(this.textDiv);
+	this.textDiv.appendChild(this.text); // why not appendChild?
+	$(this.textDiv).attr('class', 'play-text');
+	$(this.text).attr('class', 'play-text');
+	$(this.text).html('PLAY')
+	this.svg = currentSVG.querySelector(".playbutton-svg");
 	$(this.svg).click(this.nextMeasure);
+	$(this.text).click(this.nextMeasure);
+	$(this.svg).hover(this.hovered, this.unhovered);
+	$(this.text).hover(this.hovered, this.unhovered);
 }
 
 PlayButton.prototype.nextMeasure = function() {
-	$(this).fadeTo(80, 0.5, function() {
-		$(this).fadeTo(80, 1);
+	$(playButton.svg).fadeTo(80, 0.5, function() {
+		$(playButton.svg).fadeTo(80, 1);
 	});
 	score.callOut();
 }
 
+PlayButton.prototype.hovered = function() {
+	playButton.svg.style.opacity = '0.7';
+	// this.style.cursor = 'pointer';
+}
+
+PlayButton.prototype.unhovered = function() {
+	playButton.svg.style.opacity = '1';
+}
+
 function Score() {
 	this.keyNumber = Math.ceil(Math.random() * 5 + 2);
+	this.keyNumber = 5;
 	window.currentSVG = document.querySelector("#svg" + this.keyNumber);
 	$(currentSVG).show();
 
@@ -84,53 +78,74 @@ function Score() {
 	for (i = 0; i < this.keyNumber; i++) {
 		window["key" + i] = new Key("key" + i);
 		window["key" + i].currScore = this;
-		//window["key" + i].svg = document.querySelector('#key' + i + "-svg");
-
-		// window["key" + i].graphic
-		// $(window["key" + i].object).attr('id', "key" + i);
-		// $(window["key" + i].object).attr('class', "key");
-		// window["key" + i].object.svg = Snap("key" + i);
 	}
 	window.playButton = new PlayButton();
 	this.notes = [];
 	this.playerNotes = [];
-	this.measures = 0;
-	this.div = $('<div>');
-	$('body').append(this.div.attr('class', 'measures'));
 	this.notes.push(this.keyNames[Math.floor(Math.random() * this.keyNumber)]);
-	
-	//this.currentSVG = "url("
+	this.measures = 0;
+	this.div = document.createElement('div');
+	document.body.appendChild(this.div);
+	$(this.div).attr('class', 'measures btm one');
+	this.div = document.createElement('div');
+	document.body.appendChild(this.div);
+	$(this.div).attr('class', 'measures top one');
+	this.div = document.createElement('div');
+	document.body.appendChild(this.div);
+	$(this.div).attr('class', 'measures btm two');
+	this.div = document.createElement('div');
+	document.body.appendChild(this.div);
+	$(this.div).attr('class', 'measures top two');
+	$('.measures.one').html('SIMON');
+	$('.measures.two').html('SAYS');
+	$('.measures').css('z-index', '1');
+	$('.measures').fadeTo(1200, .9, function() {
+		$(this).fadeTo(1, .9, function() {
+			$(this).fadeTo(900, 0, function() {
+				$(this).css('z-index', '-1');
+			});
+		})
+	});
 }
 
-// var fade = function(x) {
-// 	$(x).fadeTo(799, 0.5, function() {
-// 		$(x).fadeTo(799, 1);
-// 	});
-// }
 
 Score.prototype.callOut = function() {
 	var i = 0;
 	var passThis = this;
-	//fade('#' + passThis.notes[0]);    //necessary in order to fire immediately
 	window.callIntervalId = setInterval(function() {
-		console.log(passThis);
-		$(window[passThis.notes[i]].svg).fadeTo(799, 0.5, function() {
-			$(this).fadeTo(799, 1);
-		}); 	
+		// $(window[passThis.notes[i]].svg).fadeTo(799, 0.5, function() {
+		// 	$(this).fadeTo(799, 1);
+		// }); 
+		fade($(window[passThis.notes[i]].svg));	
 		i++;
 	}, 1600);
 	setTimeout(function() {
 		clearInterval(callIntervalId);
-		console.log(passThis);
-		window.measureId = window.setTimeout(passThis.measure.bind(passThis), 1000 * passThis.notes.length + 2000);
-	}, 1600 * passThis.notes.length + 2600); // extra 1600 cuz setinterval is delayed
+	}, 1600 * passThis.notes.length + 1590) // extra 1600 cuz setinterval is delayed
+	window.measureId = window.setTimeout(
+		passThis.measure.bind(passThis), 2000 * passThis.notes.length + 3800); // *1.5 because must wait for player's input
 }
 
-Score.prototype.measure = function() {
-	console.log(this);
+Score.prototype.measure = function(pressedKey) {
+	console.log(666);
+	if (pressedKey === true && this.playerNotes.length !== this.notes.length) {
+		var isEquivalent = true;
+		for (var i = 0; i < this.playerNotes.length; i++) {
+			if (this.playerNotes[i] !== this.notes[i]) {
+				isEquivalent = false;
+			}
+		}
+		if (isEquivalent === true) {
+			return null;
+		}
+		else {
+			clearTimeout(measureId);
+			clearTimeout(callIntervalId);
+		}
+	}
+
 	var isEquivalent = (this.playerNotes.length === this.notes.length);
 	for (var i = 0; i < this.playerNotes.length; i++) {
-		console.log(this.playerNotes[i] !== this.notes[i]);
 		if (this.playerNotes[i] !== this.notes[i]) {
 			isEquivalent = false;
 		}
@@ -143,21 +158,27 @@ Score.prototype.measure = function() {
 
 Score.prototype.nSync = function() {
 	this.measures++;
-	$('.play-text').html('CORRECT').fadeTo(2000, 1, function() {
+	fontSmall(playButton.text);
+	$('p.play-text').html('CORRECT').fadeTo(2000, 1, function() {
+		fontLarge(playButton.text);
 		$(this).html('PLAY');
 	});
 }
 
 Score.prototype.unSync = function() {
 	$('*').off();
-	//$('.play-text').html('INCORRECT');
-	$('.measures').html(this.measures + ' correct');
+	fontSmall(playButton.text);
+	$('p.play-text').html('INCORRECT');
+	$('.measures.one').html(String(this.measures));
+	$('.measures.two').html('correct');
 	$('.measures').css('z-index', '1');
-	$('.measures').fadeTo(600, .7, function() {
-		$(this).fadeTo(700, .7, function() {
-			$(this).fadeTo(500, 0, function() {
+	$('.measures').fadeTo(1000, .7, function() {
+		$(this).fadeTo(50, .7, function() {
+			$(this).fadeTo(1000, 0, function() {
 				$(this).css('z-index', '-1');
-				//$('.play-text').html('TRY AGAIN');
+				$('p.play-text').html('TRY AGAIN');
+				$(playButton.svg).hover(playButton.hovered, playButton.unhovered);
+				$(playButton.text).hover(playButton.hovered, playButton.unhovered);				
 				$(playButton.svg).click(initialize);
 			});
 		})
@@ -169,21 +190,14 @@ var chroma = function(passScore) {
 		return Math.floor(Math.random() * 155 + 100);
 	}
 	for (var i = 0; i < passScore.keyNumber; i++) {
-		currentSVG.querySelector('#key' + i + '-svg').style.fill = 'rgb(' + genRGB() + ',' + genRGB() + ',' + genRGB() + ')';
+		currentSVG.querySelector('.key' + i + '-svg').style.fill = '#ffffff';
+		currentSVG.querySelector('.bg' + i + '-svg').style.fill = 'rgb(' + genRGB() + ',' + genRGB() + ',' + genRGB() + ')';
 	}
-	currentSVG.querySelector('#playbutton-svg').style.fill = 'rgb(158,255,130)';
-	currentSVG.querySelector('#playbutton-svg').style.fill = 'rgb(60,230,255)';
-	// this.object = document.createElement('object')
-	// this.object.setAttribute('id', 'graph');
-	// this.object.setAttribute('data', svg);
-	// this.object.setAttribute('type', 'image/svg+xml');
-	// document.body.appendChild(this.object);
-	// for (var i = 0; i < window.keyNumber; i++) {
-	// 	this['key' + i] = window['key' + i];
-	// }
+	// currentSVG.querySelector('#playbutton-svg').style.fill = 'rgb(158,255,130)';
+	// currentSVG.querySelector('.playbutton-svg').style.fill = 'rgb(190,255,200)';
+	// currentSVG.querySelector('.membrane-svg').style.fill = 'rgb(230,255,255)';
 }
 
-//init
 var initialize = function() {
 	$('*').off();
 	$(playButton.svg).off();
@@ -195,7 +209,3 @@ var initialize = function() {
 $('svg').hide();
 window.score = new Score();
 
-
-
-
-//window[viariable name string]
