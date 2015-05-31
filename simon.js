@@ -1,28 +1,43 @@
-
-
 function Key(keyName) {
 	this.name = keyName;
 	this.svg = currentSVG.querySelector('.' + keyName + '-svg');
 	$(this.svg).attr('class', keyName + '-svg key');
+	this.audio = document.createElement('audio');
+	this.audio.preload = 'auto';
+	//simon_14 is the best :)) and 22
+	this.audio.src = 'audio/simon_' + Math.floor(Math.random() * 49) + '.mp3'
 	var pressedBound = this.pressed.bind(this);
 	$(this.svg).click(pressedBound);
+	var hoveredBound = this.hovered.bind(this);
+	var unhoveredBound = this.unhovered.bind(this);
+	$(this.svg).hover(hoveredBound, unhoveredBound);
 }
 
-var fade = function(x) {
-	$(x).fadeTo(799, 0.9, function() {
-		$(this).fadeTo(799, 0);
+var fade = function(key) {
+	key.audio.currentTime = 0;
+	key.audio.play();
+	console.log(key.audio.src);
+	$(key.svg).fadeTo(759, 0.9, function() {
+		$(this).fadeTo(759, 0);
 	});
 }
 
 Key.prototype.pressed = function() {   // but why is "this" not the thing that calls "pressed"?
-	fade($(this.svg));
-	console.log(this.name);
+	fade(this);
 	this.currScore.playerNotes.push(this.name); // score is a property of key... and vice versa
 
-	if (this.currScore.playerNotes.length === this.currScore.notes.length) {
+	if (this.currScore.playerNotes.length === this.currScore.notes.length && this.currScore.notes.length > 1) {
 		clearTimeout(measureId);
 	}
-	this.currScore.measure(true);
+	this.currScore.measure(true, false);
+}
+
+Key.prototype.hovered = function() {
+	this.svg.style.opacity = '0.2';
+}
+
+Key.prototype.unhovered = function() {
+	this.svg.style.opacity = '0';
 }
 
 var fontSmall = function(x) {
@@ -72,7 +87,7 @@ function Score() {
 
 	chroma(this);
 	this.keyNames = [];
-	for (var i = 0; i < this.keyNumber; i++) {
+	for (i = 0; i < this.keyNumber; i++) {
 		this.keyNames.push("key" + i);
 	}
 	for (i = 0; i < this.keyNumber; i++) {
@@ -99,35 +114,43 @@ function Score() {
 	$('.measures.one').html('SIMON');
 	$('.measures.two').html('SAYS');
 	$('.measures').css('z-index', '1');
-	$('.measures').fadeTo(1200, .9, function() {
+	$('.measures').fadeTo(1200 * loadTime, .9, function() {
 		$(this).fadeTo(1, .9, function() {
 			$(this).fadeTo(900, 0, function() {
 				$(this).css('z-index', '-1');
 			});
 		})
 	});
+	window.loadTime = 1;
 }
 
 
 Score.prototype.callOut = function() {
 	var i = 0;
-	var passThis = this;
+	this.playerNotes = [];
 	window.callIntervalId = setInterval(function() {
-		// $(window[passThis.notes[i]].svg).fadeTo(799, 0.5, function() {
+		// $(window[score.notes[i]].svg).fadeTo(799, 0.5, function() {
 		// 	$(this).fadeTo(799, 1);
 		// }); 
-		fade($(window[passThis.notes[i]].svg));	
+		fade(window[score.notes[i]]);	
 		i++;
-	}, 1600);
+	}, 1520);
 	setTimeout(function() {
 		clearInterval(callIntervalId);
-	}, 1600 * passThis.notes.length + 1590) // extra 1600 cuz setinterval is delayed
+	}, 1520 * score.notes.length + 1510) // extra 1600 cuz setinterval is delayed
 	window.measureId = window.setTimeout(
-		passThis.measure.bind(passThis), 2000 * passThis.notes.length + 3800); // *1.5 because must wait for player's input
+		function() { console.log(55);
+		score.measure(false, true)}, 3100 * score.notes.length + 3200); // *1.5 because must wait for player's input
 }
 
-Score.prototype.measure = function(pressedKey) {
+Score.prototype.measure = function(pressedKey, calledOut) {
 	console.log(666);
+	console.log(score.notes);
+	console.log(score.playerNotes);
+	// REMOVE THIS ^^ & THIS vv LATER
+	if (this.notes.length === 1 && calledOut === false) {
+		return;
+	}
 	if (pressedKey === true && this.playerNotes.length !== this.notes.length) {
 		var isEquivalent = true;
 		for (var i = 0; i < this.playerNotes.length; i++) {
@@ -136,7 +159,7 @@ Score.prototype.measure = function(pressedKey) {
 			}
 		}
 		if (isEquivalent === true) {
-			return null;
+			return;
 		}
 		else {
 			clearTimeout(measureId);
@@ -193,9 +216,6 @@ var chroma = function(passScore) {
 		currentSVG.querySelector('.key' + i + '-svg').style.fill = '#ffffff';
 		currentSVG.querySelector('.bg' + i + '-svg').style.fill = 'rgb(' + genRGB() + ',' + genRGB() + ',' + genRGB() + ')';
 	}
-	// currentSVG.querySelector('#playbutton-svg').style.fill = 'rgb(158,255,130)';
-	// currentSVG.querySelector('.playbutton-svg').style.fill = 'rgb(190,255,200)';
-	// currentSVG.querySelector('.membrane-svg').style.fill = 'rgb(230,255,255)';
 }
 
 var initialize = function() {
@@ -206,6 +226,6 @@ var initialize = function() {
 	window.score = new Score();
 }
 
-$('svg').hide();
+window.loadTime = 1.5;
 window.score = new Score();
 

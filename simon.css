@@ -36,6 +36,7 @@ object#graph {
 
 .key {
 	opacity: 0;
+	color: white;
 }
 
 #membrane-svg {
