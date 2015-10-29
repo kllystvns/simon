@@ -66,7 +66,7 @@ PlayButton.prototype.unhovered = function() {
 
 function Score() {
 	this.keyNumber = Math.ceil(Math.random() * 5 + 2);
-	this.keyNumber = 5;
+	// this.keyNumber = 5;
 	window.currentSVG = document.querySelector("#svg" + this.keyNumber);
 	$(currentSVG).show();
 
@@ -127,7 +127,6 @@ Score.prototype.callOut = function() {
 }
 
 Score.prototype.measure = function(pressedKey) {
-	console.log(666);
 	if (pressedKey === true && this.playerNotes.length !== this.notes.length) {
 		var isEquivalent = true;
 		for (var i = 0; i < this.playerNotes.length; i++) {
